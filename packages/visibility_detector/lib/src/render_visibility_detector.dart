@@ -32,6 +32,10 @@ mixin RenderVisibilityDetectorBase on RenderObject {
     _processCallbacks();
   }
 
+  static VisibilityInfo? getVisibilityInfo(Key key) {
+    return _lastVisibility[key];
+  }
+
   static void forget(Key key) {
     _updates.remove(key);
     _lastVisibility.remove(key);
@@ -43,6 +47,7 @@ mixin RenderVisibilityDetectorBase on RenderObject {
   }
 
   static Timer? _timer;
+
   static void _handleTimer() {
     _timer = null;
     // Ensure that work is done between frames so that calculations are
@@ -184,8 +189,7 @@ mixin RenderVisibilityDetectorBase on RenderObject {
     // Check if any ancestors decided to skip painting this RenderObject.
     if (parent != null) {
       // TODO(goderbauer): Remove ignore and cast when https://github.com/flutter/flutter/pull/128973 has reached stable.
-      RenderObject ancestor =
-          parent! as RenderObject; // ignore: unnecessary_cast
+      RenderObject ancestor = parent! as RenderObject; // ignore: unnecessary_cast
       RenderObject child = this;
       while (ancestor.parent != null) {
         if (!ancestor.paintsChild(child)) {
@@ -249,16 +253,12 @@ mixin RenderVisibilityDetectorBase on RenderObject {
   void paint(PaintingContext context, Offset offset) {
     if (onVisibilityChanged != null) {
       _lastPaintClipBounds = context.canvas.getLocalClipBounds();
-      _lastPaintTransform =
-          Matrix4.fromFloat64List(context.canvas.getTransform())
-            ..translate(offset.dx, offset.dy, 0);
+      _lastPaintTransform = Matrix4.fromFloat64List(context.canvas.getTransform())..translate(offset.dx, offset.dy, 0);
 
       _compositionCallbackCanceller?.call();
-      _compositionCallbackCanceller =
-          context.addCompositionCallback((Layer layer) {
+      _compositionCallbackCanceller = context.addCompositionCallback((Layer layer) {
         assert(!debugDisposed!);
-        final ContainerLayer? container =
-            layer is ContainerLayer ? layer : layer.parent;
+        final ContainerLayer? container = layer is ContainerLayer ? layer : layer.parent;
         _scheduleUpdate(container);
       });
     }
@@ -266,6 +266,7 @@ mixin RenderVisibilityDetectorBase on RenderObject {
   }
 
   bool _disposed = false;
+
   @override
   void dispose() {
     _compositionCallbackCanceller?.call();
@@ -276,8 +277,7 @@ mixin RenderVisibilityDetectorBase on RenderObject {
 }
 
 /// The [RenderObject] corresponding to the [VisibilityDetector] widget.
-class RenderVisibilityDetector extends RenderProxyBox
-    with RenderVisibilityDetectorBase {
+class RenderVisibilityDetector extends RenderProxyBox with RenderVisibilityDetectorBase {
   /// Constructor.  See the corresponding properties for parameter details.
   RenderVisibilityDetector({
     RenderBox? child,
@@ -299,8 +299,7 @@ class RenderVisibilityDetector extends RenderProxyBox
 ///
 /// [RenderSliverVisibilityDetector] is a bridge between
 /// [SliverVisibilityDetector] and [VisibilityDetectorLayer].
-class RenderSliverVisibilityDetector extends RenderProxySliver
-    with RenderVisibilityDetectorBase {
+class RenderSliverVisibilityDetector extends RenderProxySliver with RenderVisibilityDetectorBase {
   /// Constructor.  See the corresponding properties for parameter details.
   RenderSliverVisibilityDetector({
     RenderSliver? sliver,
@@ -330,9 +329,7 @@ class RenderSliverVisibilityDetector extends RenderProxySliver
         widgetSize = Size(constraints.crossAxisExtent, geometry!.scrollExtent);
         break;
       case AxisDirection.up:
-        final startOffset = geometry!.paintExtent +
-            constraints.scrollOffset -
-            geometry!.scrollExtent;
+        final startOffset = geometry!.paintExtent + constraints.scrollOffset - geometry!.scrollExtent;
         widgetOffset = Offset(0, math.min(startOffset, 0));
         widgetSize = Size(constraints.crossAxisExtent, geometry!.scrollExtent);
         break;
@@ -341,9 +338,7 @@ class RenderSliverVisibilityDetector extends RenderProxySliver
         widgetSize = Size(geometry!.scrollExtent, constraints.crossAxisExtent);
         break;
       case AxisDirection.left:
-        final startOffset = geometry!.paintExtent +
-            constraints.scrollOffset -
-            geometry!.scrollExtent;
+        final startOffset = geometry!.paintExtent + constraints.scrollOffset - geometry!.scrollExtent;
         widgetOffset = Offset(math.min(startOffset, 0), 0);
         widgetSize = Size(geometry!.scrollExtent, constraints.crossAxisExtent);
         break;

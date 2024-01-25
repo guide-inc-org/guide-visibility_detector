@@ -7,11 +7,13 @@
 import 'package:flutter/foundation.dart';
 
 import 'render_visibility_detector.dart';
+import 'visibility_detector.dart';
 
 /// A [VisibilityDetectorController] is a singleton object that can perform
 /// actions and change configuration for all [VisibilityDetector] widgets.
 class VisibilityDetectorController {
   static final _instance = VisibilityDetectorController();
+
   static VisibilityDetectorController get instance => _instance;
 
   /// The minimum amount of time to wait between firing batches of visibility
@@ -29,6 +31,9 @@ class VisibilityDetectorController {
   /// This might be desirable just prior to tearing down the widget tree (such
   /// as when switching views or when exiting the application).
   void notifyNow() => RenderVisibilityDetectorBase.notifyNow();
+
+  /// Retrieve VisibilityInfo by key
+  VisibilityInfo? getVisibilityInfo(Key key) => RenderVisibilityDetectorBase.getVisibilityInfo(key);
 
   /// Forgets any pending visibility callbacks for the [VisibilityDetector] with
   /// the given [key].
